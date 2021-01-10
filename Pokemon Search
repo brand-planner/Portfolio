@@ -1,0 +1,39 @@
+import pandas as pd
+import requests
+import json
+
+#function for displaying the data in a readable form 
+def display(prompt):
+    url = "https://pokeapi.co/api/v2/pokemon/" + prompt
+    r= requests.get(url)
+    if r.status_code == 200:
+        print('**Connection was establshed sucessfully**')
+        #formatting the data so it's legible
+        pulled_data = r.json()
+        name= pulled_data['forms'][0]['name']
+        types= pulled_data['types'][0]['type']
+        typess = pulled_data['types'][0]['type']['name']
+        weight= pulled_data['weight']
+        base_attack = pulled_data['abilities'][0]['ability']['name']
+        print('Name: '+str(name))
+        print('Type: '+str(typess))
+        print('Weight: '+str(weight)+ 'lbs')
+        print('Base attack: '+str(base_attack))
+    else:
+        print('invalid input')
+
+def main():
+    while 1 == 1:
+        prompt = input("Please enter pokemon name for stats or stop to end program. ") 
+        if prompt == 'stop':
+            print('Thanks for using the program')
+            break
+        elif len(prompt) >= 1:
+            display(prompt)
+        else:
+            print('Thanks for using the program')
+            break
+
+            
+if __name__ == "__main__":
+    main()
