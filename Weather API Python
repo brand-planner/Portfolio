@@ -1,0 +1,76 @@
+import requests
+import json
+    
+#function to pull the weather from the api
+def get_weather(location):
+    #if the location is an int, which in this case it means zipcode then it pulls that url 
+    if type(location) == int:
+        url=  'https://api.openweathermap.org/data/2.5/weather?zip={},us&units=imperial&appid=6e12662559578a20e707972237621464'.format(location)
+        #rusing the request function to get the info from the url and saving it as a variable
+        r= requests.get(url)
+       # returning r
+        return(r)
+        print('**Connection was establshed sucessfully**')
+    #if it's not an int then that means it's a city and will be pulled from this url
+    else:
+        url= 'https://api.openweathermap.org/data/2.5/weather?q={},us&appid=6e12662559578a20e707972237621464&units=imperial'.format(location)
+        #rusing the request function to get the info from the url and saving it as a variable
+        r= requests.get(url)
+       # returning r
+        return(r)
+        print('**Connection was establshed sucessfully**')
+
+#function for displaying the data in a readable form 
+def display(pull):
+    #if status code == 200 then successfully pulled
+    if pull.status_code == 200:
+        #formatting as json
+        pulled_data = pull.json()
+        #formatting the data so it's legible
+        print(f"""{pulled_data['name']} Weather Forecast:
+              Type: {pulled_data['weather'][0]['description']}
+              Max Temp : {pulled_data['main']['temp_max']} F)
+     ##f string is making everything below read as if it's going to be printed out, but it still runs fine?? No idea why
+      
+    else:
+    #if it throws an error then read the error out
+        print("Error, Try Again")
+
+#main function
+def main():
+#while loop
+    while True:
+    ##user input for selecting what they want to do 
+        prompt = input("Please enter city or zipcode for weather or stop to end program. ")
+        #try block to start running through possibilities 
+        try:
+        #is zips is an int then it pulls from int URL
+            zips = int(prompt)
+            #get weather function being called
+            pull = get_weather(zips)
+            print('**Connection was establshed sucessfully**')
+            ##calling display function
+            display(pull)
+        except:
+        #if the try block doesn't except it then it checks to see if it's == to stop
+            if prompt == 'stop':
+            #if equal to stop then break
+                break
+                ## if the string doesn't equal stop then we know we are pulling citys data
+            elif prompt != 'stop':
+                citys = prompt
+                #pulling citys data from get_weather function
+                pull = get_weather(citys)
+                print('**Connection was establshed sucessfully**')
+                #calling display function
+                display(pull)
+                #anything else throws an error
+            else:
+                print('Invalid input')
+    print('')
+    #some helpful reminders if you are forgetful with me
+    print('Make sure to dress for the weather!')
+    
+##calling the main function
+if __name__ == "__main__":
+    main()
