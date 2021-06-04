@@ -1,0 +1,62 @@
+source = 'https://realpython.com/k-means-clustering-python/'
+import matplotlib.pyplot as plt
+from kneed import KneeLocator
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import StandardScaler
+import numpy as np 
+import pandas as pd
+from sklearn.datasets.samples_generator import make_blobs
+from sklearn.cluster import KMeans
+import seaborn as sns
+from sklearn.decomposition import PCA
+
+c2019= pd.read_excel('CFB 19 P5 conference Only.xlsx')
+df = pd.DataFrame(c2019, columns=['Games', 'Off.Rank', 'Def.Rank', 'Strength of Schedule','Sacks','Off.Yards.Play','Penalty.Yards.Per.Game','Points.Per.Game','Opp.Rush.Touchdowns.Allowed','Rushing.Def.Rank','Yards.Completion.Allowed',
+                                 'Pass.Yards.Attempt','Pass.Def.Rank','Yards.Completion.Allowed','Opp.Completions.Allowed','Penalty.Yards.Per.Game','Rushing.Off.Rank','Rushing.Def.Rank',
+                                 'Opp.Rush.Touchdowns.Allowed','Scoring.Def.Rank','Avg.Points.per.Game.Allowed','Points.Per.Game','Tackle.For.Loss.Per.Game'])
+
+kmeans = KMeans(n_clusters=5)
+
+y = kmeans.fit_predict(df[['Games', 'Off.Rank', 'Def.Rank', 'Strength of Schedule','Sacks','Off.Yards.Play','Penalty.Yards.Per.Game','Points.Per.Game','Opp.Rush.Touchdowns.Allowed','Rushing.Def.Rank','Yards.Completion.Allowed',
+                          'Pass.Yards.Attempt','Pass.Def.Rank','Yards.Completion.Allowed','Opp.Completions.Allowed','Penalty.Yards.Per.Game','Rushing.Off.Rank','Rushing.Def.Rank',
+                          'Opp.Rush.Touchdowns.Allowed','Scoring.Def.Rank','Avg.Points.per.Game.Allowed','Points.Per.Game','Tackle.For.Loss.Per.Game']])
+
+df['Cluster20'] = y
+
+x = df['Cluster20']
+plt.hist(x, bins = 5)
+plt.show()
+
+plt.show()
+plt.scatter(x=df['Cluster20'],y=df['Games'])
+
+### Get all the features columns except the class
+features = list(df.columns)[:-2]
+
+### Get the features data
+data = df[features]
+
+clustering_kmeans = KMeans(n_clusters=2, precompute_distances="auto", n_jobs=-1)
+df['cluster20'] = clustering_kmeans.fit_predict(data)
+
+### Run PCA on the data and reduce the dimensions in pca_num_components dimensions
+reduced_data = PCA(n_components=2).fit_transform(df)
+results = pd.DataFrame(reduced_data,columns=['pca1','pca2'])
+print(results.head(65))
+#sns.scatterplot(x="pca1", y="pca2", hue=dfs['clusters'], dfs=results)
+#plt.title('K-means Clustering with 2 dimensions')
+#plt.show()
+x=  results['pca1']
+
+### Run PCA on the data and reduce the dimensions in pca_num_components dimensions
+reduced_data = PCA(n_components=2).fit_transform(df)
+#print(results)
+#sns.scatterplot(x="pca1", y="pca2", hue=dfs['clusters'], dfs=results)
+#plt.title('K-means Clustering with 2 dimensions')
+#plt.show()
+x=results['pca1']
+y= results['pca2']
+plt.show()
+plt.scatter(x,y, c=df['Cluster20'])
