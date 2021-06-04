@@ -1,0 +1,24 @@
+import pandas as pd
+import numpy as np 
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score
+student_performances = pd.read_excel('Studentperformance easy predicted.xlsx')
+
+xy = student_performances.iloc[:,0:5]
+zy = student_performances.iloc[:,5]
+xy_train, xy_test, zy_train, zy_test =train_test_split(xy,zy, random_state=0, test_size=0.2)
+
+sc_x = StandardScaler()
+Xy_train = sc_x.fit_transform(xy_train)
+Xy_test = sc_x.transform(xy_test)
+
+classifier = KNeighborsClassifier(n_neighbors = 39, p=2, metric = 'euclidean')
+classifier.fit(xy_train, zy_train)
+y_pred = classifier.predict(xy_test)
+cm = confusion_matrix(zy_test, y_pred)
+print(cm)
+print(accuracy_score(zy_test, y_pred))
