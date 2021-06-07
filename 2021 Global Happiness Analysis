@@ -1,0 +1,129 @@
+"""This analysis is over the 2021 world happiness report that is produced by Gallup. I do some quick data cleaning
+new variable creation, creating visuals and perform regressions on the variables.
+Findings:
+The region that score the highest on the report are North Amercia and ANZ followed by Western European countries.
+According to the regressions the two most important factors are healthy life expectancy and social support. Both 
+North American/ANZ and Western Europe lead slightly in social support. However,it's a seeming three way tie in 
+healthy life expectancy between North American/ANZ, Western Europe and East Asia."""
+
+#importing packages
+import pandas as pd
+import seaborn as sns
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+#reading in CSV file
+pd.read_csv("world-happiness-report-2021.csv")
+
+#creating variable to read in CSV file
+happy = pd.read_csv("world-happiness-report-2021.csv")
+
+#filling in any null or NaN values
+happy.fillna(0)
+happy.head(5)
+
+#creating a dummy variable for above or below average social support
+social_total = sum(happy['Social support'])
+social_length = len(happy['Social support'])
+social_avg = social_total/social_length
+print(social_avg)
+happy['Social Avg'] = [1 if x> social_avg else 0 for x in happy['Social support']]
+
+#creating a dummy variable for above or below average perceptions of corruption
+corruption_total = sum(happy['Perceptions of corruption'])
+corruption_length = len(happy['Perceptions of corruption'])
+corruption_avg = corruption_total/corruption_length
+print(corruption_avg)
+happy['corruption_avg'] = [1 if x> corruption_avg else 0 for x in happy['Perceptions of corruption']]
+
+#creating a dummy variable for above or below average generosity
+Generosity_total = sum(happy['Generosity'])
+Generosity_length = len(happy['Generosity'])
+Generosity_avg = Generosity_total/Generosity_length
+print(Generosity_avg)
+happy['Generosity_avg'] = [1 if x> Generosity_avg else 0 for x in happy['Generosity']]
+
+#creating a dummy variable for above or below average GDP
+GDP_total = sum(happy['Logged GDP per capita'])
+GDP_length = len(happy['Logged GDP per capita'])
+GDP_avg = GDP_total/GDP_length
+print(GDP_avg)
+happy['GDP_avg'] = [1 if x> GDP_avg else 0 for x in happy['Logged GDP per capita']]
+
+#creating a dummy variable for above or below average life expectancy
+life_total = sum(happy['Healthy life expectancy'])
+life_len = len(happy['Healthy life expectancy'])
+life_avg = life_total/life_len
+print(life_avg)
+happy['life_avg'] = [1 if x> life_avg else 0 for x in happy['Healthy life expectancy']]
+
+#uploading report with newly created regional dummy variable 
+happys = pd.read_excel('Global_happiness_report.xlsx')
+
+#creating a bar graph of ladder score and regional indicator
+sns.set(style="whitegrid")
+ax = sns.barplot(x="Ladder score", y="Regional indicator", data=happys)
+
+#creating a bar graph of Social support and regional indicator
+sns.set(style="whitegrid")
+ax = sns.barplot(x="Social support", y="Regional indicator", data=happys)
+
+#creating a bar graph of GDP and regional indicator
+sns.set(style="whitegrid")
+ax = sns.barplot(x="Logged GDP per capita", y="Regional indicator", data=happys)
+
+#creating a bar graph of life expectancy and regional indicator
+sns.set(style="whitegrid")
+ax = sns.barplot(x="Healthy life expectancy", y="Regional indicator", data=happys)
+
+#scatter plot that plots GDP against social support with below average generosity being 0 and above average being 1
+scatter = sns.scatterplot(x="Social support", y="Logged GDP per capita", hue='Regional indicator' ,style='Generosity_avg' ,data=happy)
+scatter.legend(bbox_to_anchor=(1.03,1))
+
+#scatter plot that plots GDP against social support with below average life expectancy average being 0 and above average being 1
+scatter = sns.scatterplot(x="Social support", y="Logged GDP per capita", hue='Regional indicator' ,style='life_avg' ,data=happy)
+scatter.legend(bbox_to_anchor=(1.03,1))
+
+#scatter plot that plots GDP against social support with below average corruption being 0 and above average being 1
+scatter = sns.scatterplot(x="Social support", y="Logged GDP per capita", hue='Regional indicator' ,style='corruption_avg' ,data=happy)
+scatter.legend(bbox_to_anchor=(1.03,1))
+
+#regression for generosity on Ladder score
+x = np.array(happy['Ladder score']).reshape((-1,1))
+y = np.array(happy['Generosity'])
+model = LinearRegression()
+model.fit(x,y)
+r_sq = model.score(x, y)
+print('coefficient of determination:', r_sq)
+
+#regression for social support on Ladder score
+x = np.array(happy['Ladder score']).reshape((-1,1))
+y = np.array(happy['Social support'])
+model = LinearRegression()
+model.fit(x,y)
+r_sq = model.score(x, y)
+print('coefficient of determination:', r_sq)
+
+#regression for life expectancy on Ladder score
+x = np.array(happy['Ladder score']).reshape((-1,1))
+y = np.array(happy['Healthy life expectancy'])
+model = LinearRegression()
+model.fit(x,y)
+r_sq = model.score(x, y)
+print('coefficient of determination:', r_sq)
+
+#regression for corruption on Ladder score
+x = np.array(happy['Ladder score']).reshape((-1,1))
+y = np.array(happy['Perceptions of corruption'])
+model = LinearRegression()
+model.fit(x,y)
+r_sq = model.score(x, y)
+print('coefficient of determination:', r_sq)
+
+#regression for Region on Ladder score
+x = np.array(happys['Ladder score']).reshape((-1,1))
+y = np.array(happys['Region dummy'])
+model = LinearRegression()
+model.fit(x,y)
+r_sq = model.score(x, y)
+print('coefficient of determination:', r_sq)
